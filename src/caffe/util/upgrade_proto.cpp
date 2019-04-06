@@ -8,6 +8,7 @@
 #include <string>
 
 #include "caffe/common.hpp"
+#undef STRICT
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/io.hpp"
 #include "caffe/util/upgrade_proto.hpp"

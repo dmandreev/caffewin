@@ -6,6 +6,7 @@
 #include "gtest/gtest.h"
 
 #include "caffe/common.hpp"
+#undef STRICT
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/sgd_solvers.hpp"
 #include "caffe/solver.hpp"

@@ -8,6 +8,7 @@
 #include "caffe/common.hpp"
 #include "caffe/data_transformer.hpp"
 #include "caffe/filler.hpp"
+#undef STRICT
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/io.hpp"
 

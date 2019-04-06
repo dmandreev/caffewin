@@ -17,6 +17,9 @@
 #include "caffe/layers/sigmoid_layer.hpp"
 #include "caffe/layers/softmax_layer.hpp"
 #include "caffe/layers/tanh_layer.hpp"
+#include "caffe/layers/input_layer.hpp"
+#include "caffe/layers/inner_product_layer.hpp"
+#undef STRICT
 #include "caffe/proto/caffe.pb.h"
 
 #ifdef USE_CUDNN
@@ -376,6 +379,54 @@ shared_ptr<Layer<Dtype> > GetPythonLayer(const LayerParameter& param) {
 
 REGISTER_LAYER_CREATOR(Python, GetPythonLayer);
 #endif
+
+template <typename Dtype>
+shared_ptr<Layer<Dtype> > GetInputLayer(const LayerParameter& param) {
+    int engine = 0;
+#ifdef USE_CUDNN
+        engine = 1;
+#endif
+
+    if (engine == 0) {
+        return shared_ptr<Layer<Dtype> >(new InputLayer<Dtype>(param));
+#ifdef USE_CUDNN
+    }
+    else if (engine == 1) {
+        return shared_ptr<Layer<Dtype> >(new CuDNNInputLayer<Dtype>(param));
+#endif
+    }
+    else {
+        LOG(FATAL) << "Layer " << param.name() << " has unknown engine.";
+        throw;  // Avoids missing return warning
+    }
+}
+
+REGISTER_LAYER_CREATOR(Input, GetInputLayer);
+
+
+template <typename Dtype>
+shared_ptr<Layer<Dtype> > GetInnerProductLayer(const LayerParameter& param) {
+    int engine = 0;
+#ifdef USE_CUDNN
+        engine = 1;
+#endif
+
+    if (engine == 0) {
+        return shared_ptr<Layer<Dtype> >(new InnerProductLayer<Dtype>(param));
+#ifdef USE_CUDNN
+    }
+    else if (engine == 1) {
+        return shared_ptr<Layer<Dtype> >(new CuDNNInnerProductLayer<Dtype>(param));
+#endif
+    }
+    else {
+        LOG(FATAL) << "Layer " << param.name() << " has unknown engine.";
+        throw;  // Avoids missing return warning
+    }
+}
+
+REGISTER_LAYER_CREATOR(InnerProduct, GetInnerProductLayer);
+
 
 // Layers that use their constructor as their default creator should be
 // registered in their corresponding cpp files. Do not register them here.
