@@ -8,20 +8,45 @@
 #include <cmath>
 #include <cstdio>
 #include <ctime>
+#include <memory>
 
 #include "caffe/common.hpp"
 #include "caffe/util/rng.hpp"
 
 namespace caffe {
 
+	class CaffeHolder
+	{
+	public:
+		CaffeHolder(Caffe * caffe)
+		{
+			_caffe = caffe;
+		};
+		~CaffeHolder()
+		{
+			if (_caffe != nullptr)
+			{
+				delete _caffe;
+				_caffe = nullptr;
+			}
+		};
+
+		Caffe *_caffe=nullptr;
+	};
 // Make sure each thread can have different values.
+#if defined(_MSC_VER)
+	__declspec(thread) static std::unique_ptr<CaffeHolder> thread_instance_;
+#else
 static boost::thread_specific_ptr<Caffe> thread_instance_;
+#endif
+
+
 
 Caffe& Caffe::Get() {
   if (!thread_instance_.get()) {
-    thread_instance_.reset(new Caffe());
+    thread_instance_.reset(new CaffeHolder(new Caffe()));
   }
-  return *(thread_instance_.get());
+  return *(thread_instance_.get()->_caffe);
 }
 
 // random seeding
